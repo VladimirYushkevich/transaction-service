@@ -44,7 +44,6 @@ public class TransactionServiceTest {
     public void setUp() throws Exception {
         setDataSourceField("transactions", Maps.newHashMap());
         setDataSourceField("types", Maps.newHashMap());
-        setDataSourceField("sums", Maps.newHashMap());
     }
 
     @Test
@@ -113,20 +112,17 @@ public class TransactionServiceTest {
     @Test
     public void testGetTransactionSum_found() {
         //given
-        given(dataSource.getSumByTransactionId(any())).willReturn(1000.0);
+        dataSource.persistTransaction(Transaction.builder().id(1L).amount(5000.0).type("cars").build());
 
         //when
-        SumDTO dto = transactionService.getSumByTransactionId(any());
+        SumDTO dto = transactionService.getSumByTransactionId(1L);
 
         //then
-        assertThat(dto.getSum(), is(1000.0));
+        assertThat(dto.getSum(), is(5000.0));
     }
 
     @Test(expected = NotFoundException.class)
     public void testGetTransactionSum_notFound() {
-        //given
-        given(dataSource.getById(any())).willThrow(new NotFoundException());
-
         //when
         transactionService.getSumByTransactionId(any());
     }

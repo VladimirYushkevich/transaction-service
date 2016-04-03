@@ -1,6 +1,7 @@
 package company.model;
 
 import com.google.common.collect.Maps;
+import company.domain.Sum;
 import company.domain.Transaction;
 import org.springframework.stereotype.Component;
 
@@ -18,12 +19,10 @@ import static java.util.Objects.nonNull;
 public class TransactionDataSource {
 
     private final Map<Long, Transaction> transactions;
-    private final Map<Long, Double> sums;
     private final Map<String, List<Long>> types;
 
     public TransactionDataSource() {
         this.transactions = Maps.newHashMap();
-        this.sums = Maps.newHashMap();
         this.types = Maps.newHashMap();
     }
 
@@ -44,27 +43,34 @@ public class TransactionDataSource {
         return types.get(type);
     }
 
-    public Double getSumByTransactionId(Long transactionId){
-        return sums.get(transactionId);
+    public Double getSumByTransactionId(Long transactionId) {
+        Transaction tx = transactions.get(transactionId);
+
+        Double sum = null;
+        if (nonNull(tx)) {
+            sum = tx.getSum().getValue() - tx.getTopSum();
+        }
+
+        return sum;
     }
 
     private void updateSums(Transaction tx) {
-        Long transactionId = tx.getId();
-        Double amount = tx.getAmount();
         Long parentId = tx.getParentId();
 
-        putInSum(transactionId, amount);
-        while (nonNull(parentId)) {
-            putInSum(parentId, amount);
-            parentId = transactions.containsKey(parentId) ? transactions.get(parentId).getParentId() : null;
-        }
-    }
+        if (nonNull(parentId)) {
+            Transaction parent = transactions.get(parentId);
 
-    private void putInSum(Long transactionId, Double amount) {
-        if (sums.containsKey(transactionId)) {
-            sums.put(transactionId, sums.get(transactionId) + amount);
+            Sum parentSum = parent.getSum();
+            Double parentValue = parentSum.getValue();
+            parentSum.setValue(parentValue + tx.getAmount());
+            tx.setSum(parentSum);
+
+            Double topSum = parent.getTopSum() + parent.getAmount();
+            tx.setTopSum(topSum);
         } else {
-            sums.put(transactionId, amount);
+            Sum sum = Sum.builder().value(tx.getAmount()).build();
+            tx.setSum(sum);
+            tx.setTopSum(0.0);
         }
     }
 

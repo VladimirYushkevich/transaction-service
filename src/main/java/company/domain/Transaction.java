@@ -11,7 +11,8 @@ public class Transaction {
     private Double amount;
     private String type;
     private Long parentId;
-    private Double sum;
+    private Sum sum;
+    private Double topSum;
 
     @Tolerate
     public Transaction() {
