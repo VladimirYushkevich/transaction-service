@@ -22,7 +22,6 @@ public class TransactionController {
     @Autowired
     private TransactionDTOValidator transactionDTOValidator;
 
-
     @InitBinder
     public void initBinder(WebDataBinder binder) {
         binder.setValidator(transactionDTOValidator);
