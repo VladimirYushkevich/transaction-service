@@ -1,0 +1,3 @@
+cache:
+  window: 60000 # in ms
+  step: 1000 # in ms
