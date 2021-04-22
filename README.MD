@@ -1,4 +1,4 @@
-### txn-service
+### transaction-service
 The core idea for this task is just to split 60 sec window (is configured
 in *application.yml* file) into list of buckets. Then any transaction can be stored in corresponding bucket according to timestamp.
 In the bucket there is a linked list to handle collisions.
